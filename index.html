@@ -244,7 +244,6 @@ body.typing .toast{bottom:24px}
 .b-cancel{background:var(--bg);border:1px solid var(--line)}
 .b-danger{background:var(--err);color:#fff;box-shadow:0 8px 20px rgba(239,68,68,.35)}
 .b-primary{background:var(--acc);color:#fff;box-shadow:0 8px 20px rgba(79,70,229,.35)}
-.b-sec{background:rgba(16,185,129,.14);color:var(--ok);margin-bottom:10px;width:100%;height:46px;border-radius:14px;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
 
 @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
 @keyframes shine{0%,55%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
@@ -264,7 +263,7 @@ body.typing .toast{bottom:24px}
       <h1>Stok Gudang</h1>
       <p><span class="dot saving" id="dot"></span><span id="dateTxt"></span> · <span id="syncTxt">Memuat…</span></p>
     </div>
-    <button class="ib" id="btnCloud" aria-label="Pengaturan Google Sheet" title="Koneksi Google Sheet & Arsip">
+    <button class="ib" id="btnCloud" aria-label="Pengaturan Google Sheet" title="Koneksi Google Sheet">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
     </button>
     <button class="ib" id="btnReset" aria-label="Kosongkan angka">
@@ -326,7 +325,7 @@ body.typing .toast{bottom:24px}
   </div>
 </div>
 
-<!-- Modal Koneksi Google Sheet (Apps Script Web App URL) -->
+<!-- Modal Koneksi Google Sheet -->
 <div class="scrim" id="scrimCfg">
   <div class="sheet">
     <div class="ic cfg"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg></div>
@@ -345,7 +344,7 @@ body.typing .toast{bottom:24px}
 'use strict';
 
 /* ============================================================================
- * KONFIGURASI URL GOOGLE APPS SCRIPT (Bisa diisi langsung di sini atau lewat tombol Sheet di kanan atas)
+ * KONFIGURASI URL GOOGLE APPS SCRIPT
  * ============================================================================ */
 var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwgWSzBVWRMhRbArp5kzm_aCij2jcpp-xmSxbW_oQ8xzYL5AlEQdtTg70seKxYljNT5rg/exec";
 var LS_GAS_URL = 'stok_gudang_gas_url_v1';
@@ -358,13 +357,38 @@ function getGasUrl(){
   return DEFAULT_GAS_URL;
 }
 
-/* ================= DATA BAWAAN (urutan buku = urutan baris ini) ================= */
-var BOOK_RAW = ["MIE|PCK","ADONAN PANGSIT|PCK","AYAM TABUR|PCK","CABE|PCK","KULIT PANGSIT|PCK","BAWANG GORENG|PCK","BUMBU MIE|BTL","MINYAK BAWANG|BTL","KECAP SAWI|JRG","UDANG RAMBUTAN|PCK","UDANG KEJU|PCK","LUMPIA UDANG|PCK","LUMPIA AYAM|PCK","SIOMAY|PCK","CEKER|PCK","PAO AYAM|PCK","BOLA UDANG KEJU|PCK","KULIT RAJANG|PCK","DOLLY PAPER|PCK","DIMSUM PAPER|PCK","TEPUNG TERIGU|PCK","TEPUNG WFC|PCK","TEPUNG ROTI|PCK","AYAM BESAR|PCK","AYAM KECIL|PCK","SAMBAL HOREG|PCK","AYAM POTONG DADU|PCK","SAYAP|PCK","EBI FURAI|PCK","AYAM FILLET|PCK","CRABSTICK|PCK","SAOS BLCKPAPER|BTL","SAOS TERIYAKI|BTL","SAOS ASAM MANIS|BTL","SAOS PEDAS|BTL","CUKA NASI|BTL","QEWPEY MAYO|PCK","MAETSRO MAYO|PCK","NORI|PCK","SEASONING/BUMBU BASIC|PCK","BIJI WIJEN|PCK","TERASI|KG","BERAS|PCK","TELUR|KG","TOBIKO|PCK","MENTAI|PCK","JELLY MIE|PCK","BUBBLE|PCK","NATA DE COCO|PCK","S ROSEN|BTL","S LECHY|BTL","CARNATION|PCK","SAN ORANGE|BTL","SAN LEMON|BTL","TEH POCI|BALL","LECI KALENG|KLG","GULA PASIR|KG","TEH SOSRO|PCK","P GREENTEA|PCK","P CAPPUCINO|PCK","P AVOCADO|PCK","P DARK CHOCO|PCK","P TARO|PCK","P MATCHA|PCK","P RED VALVET|PCK","MILK POWDER|PCK","WHEAP CREAM|PCK","COFFEE BEAN|PCK","FRESH MILK|BTL","OREO|KG","S VANILA|BTL","TOP CHOCOLATE|PCK","TOP CARAMEL|PCK","S STRAWBERRY|PCK","SKM COKELAT|KLG","GULA SAC|PCK","GULA AREN|PCK","AIR MINERAL|DOS","PLASTIK WHEAP|PCK","SENDOK TEH|PCK","BOX MIE|PCK","BOX DIMSUM|PCK","MINYAK GOR|DOS","SENDOK PLSTK|PCK","GARPU PLSTK|PCK","SENDOK GELATO|PCK","CUP 14 OZ|SLP","CUP 18 OZ|SLP","CUP 2 OZ|SLP","CUP 4 OZ|SLP","CUP 5 OZ|SLP","CUP HOT|SLP","PLASTIK 40|PCK","PLASTIK WRAP|ROLL","KLIP 6X4|PCK","KLIP 8X5|PCK","KLIP 7X10|PCK","TRASH BAG BSR|PCK","SUMPIT|PCK","SEDOTAN|PCK","TISSUE TOWEL|PCS","THERMAL KASIR|PCS","HANDGLOVE|PCK","SBN C PIRING|JRG","SBN LANTAI|JRG","SBN C TANGAN|JRG","CUP 35ML|SLOP","CUP 25ML|SLOP","CUP SEALER|RLL","KERTAS NASI|PCK","STP|PCK","MICA SAMBAL|PCK","GALON|GLN","ES TUBE|PCK","ES SERUT|PCK","TAS SPONB BESAR|PCK","TAS SPONB KECIL|PCK","CONE|SLOP","FINNA BANGKOK|DOS","FINNA PEDAS|DOS"];
+/* ================= DATA BAWAAN ================= */
+var BOOK_RAW = [
+  "MIE|PCK","ADONAN PANGSIT|PCK","AYAM TABUR|PCK","CABE|PCK","KULIT PANGSIT|PCK","BAWANG GORENG|PCK","BUMBU MIE|BTL",
+  "MINYAK BAWANG|BTL","KECAP SAWI|JRG","UDANG RAMBUTAN|PCK","UDANG KEJU|PCK","LUMPIA UDANG|PCK","LUMPIA AYAM|PCK",
+  "SIOMAY|PCK","CEKER|PCK","PAO AYAM|PCK","BOLA UDANG KEJU|PCK","KULIT RAJANG|PCK","DOLLY PAPER|PCK","DIMSUM PAPER|PCK",
+  "TEPUNG TERIGU|PCK","TEPUNG WFC|PCK","TEPUNG ROTI|PCK","AYAM BESAR|PCK","AYAM KECIL|PCK","SAMBAL HOREG|PCK",
+  "AYAM POTONG DADU|PCK","SAYAP|PCK","EBI FURAI|PCK","AYAM FILLET|PCK","CRABSTICK|PCK","SAOS BLCKPAPER|BTL",
+  "SAOS TERIYAKI|BTL","SAOS ASAM MANIS|BTL","SAOS PEDAS|BTL","CUKA NASI|BTL","QEWPEY MAYO|PCK","MAETSRO MAYO|PCK",
+  "NORI|PCK","SEASONING/BUMBU BASIC|PCK","BIJI WIJEN|PCK","TERASI|KG","BERAS|PCK","TELUR|KG","TOBIKO|PCK","MENTAI|PCK",
+  "JELLY MIE|PCK","BUBBLE|PCK","NATA DE COCO|PCK","S ROSEN|BTL","S LECHY|BTL","CARNATION|PCK","SAN ORANGE|BTL",
+  "SAN LEMON|BTL","TEH POCI|BALL","LECI KALENG|KLG","GULA PASIR|KG","TEH SOSRO|PCK","P GREENTEA|PCK","P CAPPUCINO|PCK",
+  "P AVOCADO|PCK","P DARK CHOCO|PCK","P TARO|PCK","P MATCHA|PCK","P RED VALVET|PCK","MILK POWDER|PCK","WHEAP CREAM|PCK",
+  "COFFEE BEAN|PCK","FRESH MILK|BTL","OREO|KG","S VANILA|BTL","TOP CHOCOLATE|PCK","TOP CARAMEL|PCK","S STRAWBERRY|PCK",
+  "SKM COKELAT|KLG","GULA SAC|PCK","GULA AREN|PCK","AIR MINERAL|DOS","PLASTIK WHEAP|PCK","SENDOK TEH|PCK","BOX MIE|PCK",
+  "BOX DIMSUM|PCK","MINYAK GOR|DOS","SENDOK PLSTK|PCK","GARPU PLSTK|PCK","SENDOK GELATO|PCK","CUP 14 OZ|SLP",
+  "CUP 18 OZ|SLP","CUP 2 OZ|SLP","CUP 4 OZ|SLP","CUP 5 OZ|SLP","CUP HOT|SLP","PLASTIK 40|PCK","PLASTIK WRAP|ROLL",
+  "KLIP 6X4|PCK","KLIP 8X5|PCK","KLIP 7X10|PCK","TRASH BAG BSR|PCK","SUMPIT|PCK","SEDOTAN|PCK","TISSUE TOWEL|PCS",
+  "THERMAL KASIR|PCS","HANDGLOVE|PCK","SBN C PIRING|JRG","SBN LANTAI|JRG","SBN C TANGAN|JRG","CUP 35ML|SLOP",
+  "CUP 25ML|SLOP","CUP SEALER|RLL","KERTAS NASI|PCK","STP|PCK","MICA SAMBAL|PCK","GALON|GLN","ES TUBE|PCK",
+  "ES SERUT|PCK","TAS SPONB BESAR|PCK","TAS SPONB KECIL|PCK","CONE|SLOP","FINNA BANGKOK|DOS","FINNA PEDAS|DOS"
+];
 var BOOK = BOOK_RAW.map(function(s,i){var p=s.split('|');return {id:i,name:p[0],unit:p[1]||''};});
 var BY_NAME = {}; BOOK.forEach(function(b){BY_NAME[b.name]=b.id;});
 
-/* Urutan Gudang Dry (sesuai urutan fisik yang kamu tentukan) */
-var DRY_NAMES = ["STP","KERTAS NASI","KLIP 7X10","KLIP 6X4","KLIP 8X5","SENDOK PLSTK","GARPU PLSTK","SENDOK GELATO","THERMAL KASIR","CUP 25ML","CUP 35ML","QEWPEY MAYO","MENTAI","CARNATION","CUKA NASI","SAOS ASAM MANIS","SAOS BLCKPAPER","SAOS PEDAS","S ROSEN","S LECHY","MAETSRO MAYO","SEASONING/BUMBU BASIC","BIJI WIJEN","NORI","TEPUNG ROTI","FINNA PEDAS","FINNA BANGKOK","MINYAK BAWANG","TELUR","BAWANG GORENG","DIMSUM PAPER","DOLLY PAPER","BUMBU MIE","KECAP SAWI","SAN LEMON","SAN ORANGE","GULA PASIR","BUBBLE","JELLY MIE","NATA DE COCO","SEDOTAN","LECI KALENG","BERAS","TEPUNG WFC","SUMPIT","MINYAK GOR"];
+var DRY_NAMES = [
+  "STP","KERTAS NASI","KLIP 7X10","KLIP 6X4","KLIP 8X5","SENDOK PLSTK","GARPU PLSTK","SENDOK GELATO","THERMAL KASIR",
+  "CUP 25ML","CUP 35ML","QEWPEY MAYO","MENTAI","CARNATION","CUKA NASI","SAOS ASAM MANIS","SAOS BLCKPAPER","SAOS PEDAS",
+  "S ROSEN","S LECHY","MAETSRO MAYO","SEASONING/BUMBU BASIC","BIJI WIJEN","NORI","TEPUNG ROTI","FINNA PEDAS",
+  "FINNA BANGKOK","MINYAK BAWANG","TELUR","BAWANG GORENG","DIMSUM PAPER","DOLLY PAPER","BUMBU MIE","KECAP SAWI",
+  "SAN LEMON","SAN ORANGE","GULA PASIR","BUBBLE","JELLY MIE","NATA DE COCO","SEDOTAN","LECI KALENG","BERAS",
+  "TEPUNG WFC","SUMPIT","MINYAK GOR"
+];
 
 function defaults(){
   var dry = DRY_NAMES.map(function(n){return BY_NAME[n];});
