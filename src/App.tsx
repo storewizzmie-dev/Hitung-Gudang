@@ -996,18 +996,6 @@ export default function App() {
 
                   {/* Bottom Dock Controls */}
                   <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center gap-3">
-                    {!isEditing && (
-                      <button
-                        type="button"
-                        onClick={handleCopyNumbersForBook}
-                        title="Salin angka berurutan untuk ditempel ke buku/sheet"
-                        className="h-12 px-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center gap-2 shrink-0 whitespace-nowrap transition-colors"
-                      >
-                        <Copy className="w-4 h-4 text-indigo-600" />
-                        <span>Salin Angka</span>
-                      </button>
-                    )}
-
                     <button
                       type="button"
                       onClick={() => {

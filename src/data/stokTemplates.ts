@@ -871,9 +871,6 @@ body.typing .toast{bottom:24px}
 
 <div class="dock">
   <div class="dock-in">
-    <button class="copy" id="btnCopy" aria-label="Salin angka">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="3"/><path d="M5 15V6a2 2 0 012-2h9"/></svg>
-    </button>
     <button class="main-btn" id="btnMain">
       <svg id="mainIcon" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></svg>
       <span id="mainTxt">Susun Sesuai Buku</span>
@@ -1375,22 +1372,6 @@ function toggleEdit(on){
   render(true);
 }
 $('btnEdit').addEventListener('click',function(){ toggleEdit(!ui.edit); });
-
-/* ================= SALIN ================= */
-$('btnCopy').addEventListener('click',function(){
-  var ids=visibleIds();
-  var text=ids.map(function(id){return state.qty[id]||'';}).join('\\n');
-  function ok(){ vib(12); toast('Tersalin '+ids.length+' baris · tinggal tempel ke buku'); }
-  function fallback(){
-    var ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;opacity:0;top:0';
-    document.body.appendChild(ta); ta.focus(); ta.select();
-    try{ document.execCommand('copy'); ok(); }catch(e){ toast('Gagal menyalin'); }
-    ta.remove();
-  }
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(ok,fallback);
-  } else fallback();
-});
 
 /* ================= RESET ANGKA ================= */
 function sheet(show){ $('scrim').classList.toggle('show',show); }
