@@ -1,0 +1,6 @@
+{
+  "name": "Stok Gudang — GitHub & Google Sheets Suite",
+  "description": "Aplikasi pencatatan Stok Gudang (Dry & Basah) lengkap dengan generator index.html untuk GitHub Pages dan backend Code.gs berbasis database Google Sheets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
