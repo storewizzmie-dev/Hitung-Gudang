@@ -1139,6 +1139,7 @@ document.addEventListener('visibilitychange',function(){
 /* ================= HELPERS ================= */
 function nameOf(id){ return state.names[id] || BOOK[id].name; }
 function visibleIds(){
+  if(ui.mode !== 'book' && ui.tab === 'all') ui.tab = 'dry';
   var ids = ui.tab==='dry' ? state.dry.slice() : ui.tab==='wet' ? state.wet.slice() : state.dry.concat(state.wet);
   if(ui.mode==='book') ids.sort(function(a,b){return a-b;});
   return ids;
@@ -1343,16 +1344,13 @@ $('seg').addEventListener('click',function(e){
 /* ================= MAIN BUTTON ================= */
 $('btnMain').addEventListener('click',function(){
   if(ui.edit){ toggleEdit(false); return; }
-  var els=Array.prototype.slice.call(list.children);
   window.scrollTo(0,0);
   var newMode = ui.mode==='wh' ? 'book' : 'wh';
-  flip(els,function(){
-    ui.mode=newMode;
-    if(newMode==='wh' && ui.tab==='all') ui.tab='dry';
-    var ids=visibleIds(), dm=dryMap();
-    list.className='tab-'+ui.tab+(ui.mode==='book'?' book':'');
-    ids.forEach(function(id,i){ var el=rows[id]; list.appendChild(el); decorate(el,id,i,dm); });
-  },true);
+  ui.mode = newMode;
+  if(newMode === 'wh' && ui.tab === 'all'){
+    ui.tab = 'dry';
+  }
+  render(false);
   chrome(); vib([10,30,10]);
   toast(newMode==='book' ? 'Tersusun sesuai urutan buku' : 'Kembali ke urutan gudang');
 });
