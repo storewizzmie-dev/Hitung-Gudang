@@ -69,7 +69,6 @@ header{
 .ib svg{width:19px;height:19px;stroke:var(--mut);transition:stroke .25s}
 body.editing #btnEdit{background:var(--acc);border-color:var(--acc)}
 body.editing #btnEdit svg{stroke:#fff}
-.ib.connected svg{stroke:var(--ok)}
 
 .seg{
   position:relative;display:grid;grid-template-columns:repeat(2,1fr);
@@ -244,6 +243,7 @@ body.typing .toast{bottom:24px}
 .b-cancel{background:var(--bg);border:1px solid var(--line)}
 .b-danger{background:var(--err);color:#fff;box-shadow:0 8px 20px rgba(239,68,68,.35)}
 .b-primary{background:var(--acc);color:#fff;box-shadow:0 8px 20px rgba(79,70,229,.35)}
+.b-sec{background:rgba(16,185,129,.14);color:var(--ok);margin-bottom:10px;width:100%;height:46px;border-radius:14px;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
 
 @keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
 @keyframes shine{0%,55%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
@@ -259,17 +259,14 @@ body.typing .toast{bottom:24px}
     <div class="logo">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
     </div>
-    <div class="ttl" id="ttlSync" title="Ketuk untuk pengaturan koneksi Google Sheet">
+    <div class="ttl">
       <h1>Stok Gudang</h1>
-      <p><span class="dot saving" id="dot"></span><span id="dateTxt"></span> · <span id="syncTxt">Memuat…</span></p>
+      <p><span class="dot" id="dot"></span><span id="dateTxt"></span> · <span id="syncTxt">Tersimpan di perangkat</span></p>
     </div>
-    <button class="ib" id="btnCloud" aria-label="Pengaturan Google Sheet" title="Koneksi Google Sheet">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
-    </button>
-    <button class="ib" id="btnReset" aria-label="Kosongkan angka">
+    <button class="ib" id="btnReset" aria-label="Kosongkan angka" title="Kosongkan semua angka">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
     </button>
-    <button class="ib" id="btnEdit" aria-label="Edit urutan dan nama">
+    <button class="ib" id="btnEdit" aria-label="Edit urutan dan nama" title="Edit urutan dan nama">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
     </button>
   </div>
@@ -325,26 +322,12 @@ body.typing .toast{bottom:24px}
   </div>
 </div>
 
-<!-- Modal Koneksi Google Sheet -->
-<div class="scrim" id="scrimCfg">
-  <div class="sheet">
-    <div class="ic cfg"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg></div>
-    <h3>Database Google Sheet</h3>
-    <p>URL Web App Google Apps Script terhubung otomatis. Data stok lama di Google Sheet akan selalu diperbarui/ditimpa dengan data terbaru.</p>
-    <input class="cfg-input" id="inpGasUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" spellcheck="false">
-    <div class="btns">
-      <button class="b-cancel" id="cfgCancel" type="button">Tutup</button>
-      <button class="b-primary" id="cfgSave" type="button">Simpan & Sinkron</button>
-    </div>
-  </div>
-</div>
-
 <script>
 (function(){
 'use strict';
 
 /* ============================================================================
- * KONFIGURASI URL GOOGLE APPS SCRIPT
+ * KONFIGURASI URL GOOGLE APPS SCRIPT (Bisa diisi langsung di sini atau lewat tombol Sheet di kanan atas)
  * ============================================================================ */
 var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwgWSzBVWRMhRbArp5kzm_aCij2jcpp-xmSxbW_oQ8xzYL5AlEQdtTg70seKxYljNT5rg/exec";
 var LS_GAS_URL = 'stok_gudang_gas_url_v1';
@@ -357,38 +340,13 @@ function getGasUrl(){
   return DEFAULT_GAS_URL;
 }
 
-/* ================= DATA BAWAAN ================= */
-var BOOK_RAW = [
-  "MIE|PCK","ADONAN PANGSIT|PCK","AYAM TABUR|PCK","CABE|PCK","KULIT PANGSIT|PCK","BAWANG GORENG|PCK","BUMBU MIE|BTL",
-  "MINYAK BAWANG|BTL","KECAP SAWI|JRG","UDANG RAMBUTAN|PCK","UDANG KEJU|PCK","LUMPIA UDANG|PCK","LUMPIA AYAM|PCK",
-  "SIOMAY|PCK","CEKER|PCK","PAO AYAM|PCK","BOLA UDANG KEJU|PCK","KULIT RAJANG|PCK","DOLLY PAPER|PCK","DIMSUM PAPER|PCK",
-  "TEPUNG TERIGU|PCK","TEPUNG WFC|PCK","TEPUNG ROTI|PCK","AYAM BESAR|PCK","AYAM KECIL|PCK","SAMBAL HOREG|PCK",
-  "AYAM POTONG DADU|PCK","SAYAP|PCK","EBI FURAI|PCK","AYAM FILLET|PCK","CRABSTICK|PCK","SAOS BLCKPAPER|BTL",
-  "SAOS TERIYAKI|BTL","SAOS ASAM MANIS|BTL","SAOS PEDAS|BTL","CUKA NASI|BTL","QEWPEY MAYO|PCK","MAETSRO MAYO|PCK",
-  "NORI|PCK","SEASONING/BUMBU BASIC|PCK","BIJI WIJEN|PCK","TERASI|KG","BERAS|PCK","TELUR|KG","TOBIKO|PCK","MENTAI|PCK",
-  "JELLY MIE|PCK","BUBBLE|PCK","NATA DE COCO|PCK","S ROSEN|BTL","S LECHY|BTL","CARNATION|PCK","SAN ORANGE|BTL",
-  "SAN LEMON|BTL","TEH POCI|BALL","LECI KALENG|KLG","GULA PASIR|KG","TEH SOSRO|PCK","P GREENTEA|PCK","P CAPPUCINO|PCK",
-  "P AVOCADO|PCK","P DARK CHOCO|PCK","P TARO|PCK","P MATCHA|PCK","P RED VALVET|PCK","MILK POWDER|PCK","WHEAP CREAM|PCK",
-  "COFFEE BEAN|PCK","FRESH MILK|BTL","OREO|KG","S VANILA|BTL","TOP CHOCOLATE|PCK","TOP CARAMEL|PCK","S STRAWBERRY|PCK",
-  "SKM COKELAT|KLG","GULA SAC|PCK","GULA AREN|PCK","AIR MINERAL|DOS","PLASTIK WHEAP|PCK","SENDOK TEH|PCK","BOX MIE|PCK",
-  "BOX DIMSUM|PCK","MINYAK GOR|DOS","SENDOK PLSTK|PCK","GARPU PLSTK|PCK","SENDOK GELATO|PCK","CUP 14 OZ|SLP",
-  "CUP 18 OZ|SLP","CUP 2 OZ|SLP","CUP 4 OZ|SLP","CUP 5 OZ|SLP","CUP HOT|SLP","PLASTIK 40|PCK","PLASTIK WRAP|ROLL",
-  "KLIP 6X4|PCK","KLIP 8X5|PCK","KLIP 7X10|PCK","TRASH BAG BSR|PCK","SUMPIT|PCK","SEDOTAN|PCK","TISSUE TOWEL|PCS",
-  "THERMAL KASIR|PCS","HANDGLOVE|PCK","SBN C PIRING|JRG","SBN LANTAI|JRG","SBN C TANGAN|JRG","CUP 35ML|SLOP",
-  "CUP 25ML|SLOP","CUP SEALER|RLL","KERTAS NASI|PCK","STP|PCK","MICA SAMBAL|PCK","GALON|GLN","ES TUBE|PCK",
-  "ES SERUT|PCK","TAS SPONB BESAR|PCK","TAS SPONB KECIL|PCK","CONE|SLOP","FINNA BANGKOK|DOS","FINNA PEDAS|DOS"
-];
+/* ================= DATA BAWAAN (urutan buku = urutan baris ini) ================= */
+var BOOK_RAW = ["MIE|PCK","ADONAN PANGSIT|PCK","AYAM TABUR|PCK","CABE|PCK","KULIT PANGSIT|PCK","BAWANG GORENG|PCK","BUMBU MIE|BTL","MINYAK BAWANG|BTL","KECAP SAWI|JRG","UDANG RAMBUTAN|PCK","UDANG KEJU|PCK","LUMPIA UDANG|PCK","LUMPIA AYAM|PCK","SIOMAY|PCK","CEKER|PCK","PAO AYAM|PCK","BOLA UDANG KEJU|PCK","KULIT RAJANG|PCK","DOLLY PAPER|PCK","DIMSUM PAPER|PCK","TEPUNG TERIGU|PCK","TEPUNG WFC|PCK","TEPUNG ROTI|PCK","AYAM BESAR|PCK","AYAM KECIL|PCK","SAMBAL HOREG|PCK","AYAM POTONG DADU|PCK","SAYAP|PCK","EBI FURAI|PCK","AYAM FILLET|PCK","CRABSTICK|PCK","SAOS BLCKPAPER|BTL","SAOS TERIYAKI|BTL","SAOS ASAM MANIS|BTL","SAOS PEDAS|BTL","CUKA NASI|BTL","QEWPEY MAYO|PCK","MAETSRO MAYO|PCK","NORI|PCK","SEASONING/BUMBU BASIC|PCK","BIJI WIJEN|PCK","TERASI|KG","BERAS|PCK","TELUR|KG","TOBIKO|PCK","MENTAI|PCK","JELLY MIE|PCK","BUBBLE|PCK","NATA DE COCO|PCK","S ROSEN|BTL","S LECHY|BTL","CARNATION|PCK","SAN ORANGE|BTL","SAN LEMON|BTL","TEH POCI|BALL","LECI KALENG|KLG","GULA PASIR|KG","TEH SOSRO|PCK","P GREENTEA|PCK","P CAPPUCINO|PCK","P AVOCADO|PCK","P DARK CHOCO|PCK","P TARO|PCK","P MATCHA|PCK","P RED VALVET|PCK","MILK POWDER|PCK","WHEAP CREAM|PCK","COFFEE BEAN|PCK","FRESH MILK|BTL","OREO|KG","S VANILA|BTL","TOP CHOCOLATE|PCK","TOP CARAMEL|PCK","S STRAWBERRY|PCK","SKM COKELAT|KLG","GULA SAC|PCK","GULA AREN|PCK","AIR MINERAL|DOS","PLASTIK WHEAP|PCK","SENDOK TEH|PCK","BOX MIE|PCK","BOX DIMSUM|PCK","MINYAK GOR|DOS","SENDOK PLSTK|PCK","GARPU PLSTK|PCK","SENDOK GELATO|PCK","CUP 14 OZ|SLP","CUP 18 OZ|SLP","CUP 2 OZ|SLP","CUP 4 OZ|SLP","CUP 5 OZ|SLP","CUP HOT|SLP","PLASTIK 40|PCK","PLASTIK WRAP|ROLL","KLIP 6X4|PCK","KLIP 8X5|PCK","KLIP 7X10|PCK","TRASH BAG BSR|PCK","SUMPIT|PCK","SEDOTAN|PCK","TISSUE TOWEL|PCS","THERMAL KASIR|PCS","HANDGLOVE|PCK","SBN C PIRING|JRG","SBN LANTAI|JRG","SBN C TANGAN|JRG","CUP 35ML|SLOP","CUP 25ML|SLOP","CUP SEALER|RLL","KERTAS NASI|PCK","STP|PCK","MICA SAMBAL|PCK","GALON|GLN","ES TUBE|PCK","ES SERUT|PCK","TAS SPONB BESAR|PCK","TAS SPONB KECIL|PCK","CONE|SLOP","FINNA BANGKOK|DOS","FINNA PEDAS|DOS"];
 var BOOK = BOOK_RAW.map(function(s,i){var p=s.split('|');return {id:i,name:p[0],unit:p[1]||''};});
 var BY_NAME = {}; BOOK.forEach(function(b){BY_NAME[b.name]=b.id;});
 
-var DRY_NAMES = [
-  "STP","KERTAS NASI","KLIP 7X10","KLIP 6X4","KLIP 8X5","SENDOK PLSTK","GARPU PLSTK","SENDOK GELATO","THERMAL KASIR",
-  "CUP 25ML","CUP 35ML","QEWPEY MAYO","MENTAI","CARNATION","CUKA NASI","SAOS ASAM MANIS","SAOS BLCKPAPER","SAOS PEDAS",
-  "S ROSEN","S LECHY","MAETSRO MAYO","SEASONING/BUMBU BASIC","BIJI WIJEN","NORI","TEPUNG ROTI","FINNA PEDAS",
-  "FINNA BANGKOK","MINYAK BAWANG","TELUR","BAWANG GORENG","DIMSUM PAPER","DOLLY PAPER","BUMBU MIE","KECAP SAWI",
-  "SAN LEMON","SAN ORANGE","GULA PASIR","BUBBLE","JELLY MIE","NATA DE COCO","SEDOTAN","LECI KALENG","BERAS",
-  "TEPUNG WFC","SUMPIT","MINYAK GOR"
-];
+/* Urutan Gudang Dry (sesuai urutan fisik yang kamu tentukan) */
+var DRY_NAMES = ["STP","KERTAS NASI","KLIP 7X10","KLIP 6X4","KLIP 8X5","SENDOK PLSTK","GARPU PLSTK","SENDOK GELATO","THERMAL KASIR","CUP 25ML","CUP 35ML","QEWPEY MAYO","MENTAI","CARNATION","CUKA NASI","SAOS ASAM MANIS","SAOS BLCKPAPER","SAOS PEDAS","S ROSEN","S LECHY","MAETSRO MAYO","SEASONING/BUMBU BASIC","BIJI WIJEN","NORI","TEPUNG ROTI","FINNA PEDAS","FINNA BANGKOK","MINYAK BAWANG","TELUR","BAWANG GORENG","DIMSUM PAPER","DOLLY PAPER","BUMBU MIE","KECAP SAWI","SAN LEMON","SAN ORANGE","GULA PASIR","BUBBLE","JELLY MIE","NATA DE COCO","SEDOTAN","LECI KALENG","BERAS","TEPUNG WFC","SUMPIT","MINYAK GOR"];
 
 function defaults(){
   var dry = DRY_NAMES.map(function(n){return BY_NAME[n];});
@@ -473,18 +431,17 @@ var ICON_CHECK = '<path d="M20 6L9 17l-5-5"/>';
 var GRIP = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round"><path d="M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01"/></svg>';
 var SWAP = '<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4"/><path d="M3 8h14"/><path d="M17 20l4-4-4-4"/><path d="M21 16H7"/></svg>';
 
-/* ================= SIMPAN & SINKRONISASI GOOGLE SHEETS ================= */
+/* ================= AUTO-SAVE OTOMATIS (LOCAL STORAGE HP) ================= */
 var saveTimer;
 function setSync(s){
-  var dot=$('dot'), t=$('syncTxt'), bc=$('btnCloud');
+  var dot=$('dot'), t=$('syncTxt');
+  if(!dot || !t) return;
   dot.className='dot'+(s==='saved'?'':' '+s);
   t.textContent = ({
-    saving:'Menyimpan ke Sheet…',
-    saved:'Tersimpan di Sheet',
-    local:'Tersimpan di perangkat',
-    error:'Gagal sinkron Sheet'
-  })[s]||'';
-  if(bc) bc.classList.toggle('connected', s==='saved');
+    saving:'Menyimpan…',
+    saved:'Tersimpan di perangkat',
+    local:'Tersimpan di perangkat'
+  })[s]||'Tersimpan di perangkat';
 }
 
 function touch(){
@@ -492,106 +449,10 @@ function touch(){
   try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){}
   setSync('saving');
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(pushServer, 650);
-}
-
-function pushServer(){
-  clearTimeout(saveTimer);
-  var gasUrl = getGasUrl();
-  var snapObj = state;
-  var snapStr = JSON.stringify(snapObj);
-
-  if(hasNativeGAS){
-    google.script.run
-      .withSuccessHandler(function(){ if(JSON.stringify(state)===snapStr) setSync('saved'); })
-      .withFailureHandler(function(){ setSync('error'); })
-      .saveState(snapStr);
-    return;
-  }
-
-  if(!gasUrl){
-    setSync('local');
-    return;
-  }
-
-  fetch(gasUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'saveState', state: serializeForSheet(snapObj) })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(res){
-    if(res && res.ok){
-      if(JSON.stringify(state)===snapStr) setSync('saved');
-    } else {
-      setSync('error');
-    }
-  })
-  .catch(function(){
-    setSync('error');
-  });
-}
-
-function pullServer(){
-  var gasUrl = getGasUrl();
-  if(hasNativeGAS){
-    setSync('saving');
-    google.script.run
-      .withSuccessHandler(function(raw){
-        var s=null; try{ s = raw ? sanitize(JSON.parse(raw)) : null; }catch(e){}
-        handleRemoteState(s);
-      })
-      .withFailureHandler(function(){ setSync('local'); })
-      .loadState();
-    return;
-  }
-
-  if(!gasUrl){
-    setSync('local');
-    return;
-  }
-
-  setSync('saving');
-  var sep = gasUrl.indexOf('?') > -1 ? '&' : '?';
-  fetch(gasUrl + sep + 'action=getState&_t=' + Date.now(), {
-    method: 'GET',
-    redirect: 'follow'
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(res){
-    if(res && res.ok && res.state){
-      handleRemoteState(sanitize(res.state));
-    } else {
-      setSync('error');
-    }
-  })
-  .catch(function(){
-    setSync('error');
-  });
-}
-
-function handleRemoteState(s){
-  if(!s || s.needsCatalogUpgrade){
-    state.ts = Date.now();
-    pushServer();
-    return;
-  }
-  if(s.ts >= state.ts){
-    state = s;
-    try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){}
-    render(false);
+  saveTimer = setTimeout(function(){
     setSync('saved');
-  } else if(state.ts > s.ts){
-    pushServer();
-  } else {
-    setSync('saved');
-  }
+  }, 200);
 }
-
-document.addEventListener('visibilitychange',function(){
-  if(document.hidden && $('syncTxt').textContent.indexOf('Menyimpan')>-1) pushServer();
-});
 
 /* ================= HELPERS ================= */
 function nameOf(id){ return state.names[id] || BOOK[id].name; }
@@ -856,31 +717,11 @@ $('rsOk').addEventListener('click',function(){
   render(false); vib(20); toast('Semua angka dikosongkan');
 });
 
-/* ================= MODAL KONEKSI GOOGLE SHEET ================= */
-function openCfg(show){
-  if(show) $('inpGasUrl').value = getGasUrl();
-  $('scrimCfg').classList.toggle('show', show);
-}
-$('btnCloud').addEventListener('click',function(){ openCfg(true); });
-$('ttlSync').addEventListener('click',function(){ openCfg(true); });
-$('cfgCancel').addEventListener('click',function(){ openCfg(false); });
-$('scrimCfg').addEventListener('click',function(e){ if(e.target===this) openCfg(false); });
-$('cfgSave').addEventListener('click',function(){
-  var val = $('inpGasUrl').value.trim();
-  try {
-    if(val) localStorage.setItem(LS_GAS_URL, val);
-    else localStorage.removeItem(LS_GAS_URL);
-  } catch(e){}
-  openCfg(false);
-  toast(val ? 'Menghubungkan ke Google Sheet…' : 'Mode penyimpanan lokal aktif');
-  pullServer();
-});
-
 /* ================= INIT ================= */
 $('dateTxt').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'});
 BOOK.forEach(function(b){ rows[b.id]=makeRow(b); });
 render(true);
-pullServer();
+setSync('saved');
 })();
 </script>
 </body>
